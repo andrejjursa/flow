@@ -8,36 +8,42 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DefaultRenderer implements Renderer
 {
+    const MULTIPLICATION = 2;
+
     /** @var OutputInterface */
     private $output;
 
-    public function setOutput(OutputInterface $output)
+    public function setOutput(OutputInterface $output): void
     {
         $this->output = $output;
         $this->registerStyles($this->output);
     }
 
-    public function write(Action $action, string $msg, int $innerLevel = 0)
+    public function write(Action $action, string $msg, int $innerLevel = 0): void
     {
-        $this->output->write(str_repeat(' ', ($action->getLevel() + $innerLevel) * 2).'-> '.$msg);
+        $this->output->write(
+            str_repeat(' ', ($action->getLevel() + $innerLevel) * self::MULTIPLICATION).'-> '.$msg
+        );
     }
 
-    public function writeln(Action $action, string $msg, int $innerLevel = 0)
+    public function writeln(Action $action, string $msg, int $innerLevel = 0): void
     {
-        $this->output->writeln(str_repeat(' ', ($action->getLevel() + $innerLevel) * 2).'-> '.$msg);
+        $this->output->writeln(
+            str_repeat(' ', ($action->getLevel() + $innerLevel) * self::MULTIPLICATION).'-> '.$msg
+        );
     }
 
-    public function writeSkip(Action $action, string $msg, int $innerLevel = 0)
+    public function writeSkip(Action $action, string $msg, int $innerLevel = 0): void
     {
         $this->writeln($action, '<yellow>[SKIPPING]</yellow> '.$msg, $innerLevel);
     }
 
-    public function writeSuccess(Action $action, string $msg, int $innerLevel = 0)
+    public function writeSuccess(Action $action, string $msg, int $innerLevel = 0): void
     {
         $this->writeln($action, '<info>[SUCCESS]</info> '.$msg, $innerLevel);
     }
 
-    public function writeError(Action $action, string $msg, int $innerLevel = 0)
+    public function writeError(Action $action, string $msg, int $innerLevel = 0): void
     {
         $this->writeln($action, '<error>[ERROR]</error> '.$msg, $innerLevel);
     }
@@ -47,16 +53,15 @@ class DefaultRenderer implements Renderer
         return '<magenta>'.$msg.'</magenta>';
     }
 
-    public function writeCommandSeparator()
+    public function writeCommandSeparator(): void
     {
         $this->output->writeln("\n **** Command ****\n");
     }
 
     /**
      * Register new styles
-     * @param OutputInterface $output
      */
-    private function registerStyles(OutputInterface $output)
+    private function registerStyles(OutputInterface $output): void
     {
         $output->getFormatter()->setStyle('error', new OutputFormatterStyle('red', 'black'));
         $output->getFormatter()->setStyle('yellow', new OutputFormatterStyle('yellow', 'black'));

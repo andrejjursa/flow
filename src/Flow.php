@@ -17,13 +17,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Flow
 {
+    const DEFAULT_MODE = 0777;
+
+    const DEFAULT_TIMEOUT = 60;
+
     /** @var Renderer */
     private $renderer;
 
-    /** @var array */
+    /** @var array<Action> */
     private $actions = [];
 
-    public function __construct(Renderer $renderer = null)
+    public function __construct(?Renderer $renderer = null)
     {
         $this->renderer = $renderer ?: new DefaultRenderer();
     }
@@ -39,7 +43,7 @@ class Flow
         return $action;
     }
 
-    public function run(OutputInterface $output)
+    public function run(OutputInterface $output): void
     {
         $this->renderer->setOutput($output);
 
@@ -53,21 +57,15 @@ class Flow
      * Wrapper functions
     \**********************************************************/
 
-    /* @noinspection PhpOptionalBeforeRequiredParametersInspection */
-    public function createDirectory(string $dir, int $mode = 0777, bool $recursive): CreateDirectory
+    public function createDirectory(string $dir, int $mode = self::DEFAULT_MODE, bool $recursive = false): CreateDirectory
     {
         return $this->addAction(new CreateDirectory($dir, $mode, $recursive));
     }
 
     /**
      * Create new directory, delete if already exists
-     * @param string $dir
-     * @param int    $mode
-     * @param bool   $recursive
-     * @return CreateDirectory
-     * @noinspection PhpOptionalBeforeRequiredParametersInspection
      */
-    public function createDirectoryForce(string $dir, int $mode = 0777, bool $recursive): CreateDirectory
+    public function createDirectoryForce(string $dir, int $mode = self::DEFAULT_MODE, bool $recursive = false): CreateDirectory
     {
         return $this->addAction(new CreateDirectory($dir, $mode, $recursive, true));
     }
@@ -79,9 +77,6 @@ class Flow
 
     /**
      * Move directory to new destination
-     * @param string $oldDirName
-     * @param string $newDirName
-     * @return MoveDirectory
      */
     public function moveDirectory(string $oldDirName, string $newDirName): MoveDirectory
     {
@@ -90,31 +85,21 @@ class Flow
 
     /**
      * Run any shell command
-     * @param string      $command
-     * @param bool        $printOutput
-     * @param string|null $cwd
-     * @param array|null  $env
-     * @param string|null $input
-     * @param int         $timeout
-     * @return RunCommand
+     * @param array<string, scalar|null>|null $env
      */
     public function runCommand(
         string $command,
         bool $printOutput = false,
-        string $cwd = null,
-        array $env = null,
-        string $input = null,
-        int $timeout = 60
+        ?string $cwd = null,
+        ?array $env = null,
+        ?string $input = null,
+        int $timeout = self::DEFAULT_TIMEOUT
     ): RunCommand {
         return $this->addAction(new RunCommand($command, $printOutput, $cwd, $env, $input, $timeout));
     }
 
     /**
      * Create new mysql database
-     * @param string $user
-     * @param string $password
-     * @param string $dbName
-     * @return CreateDatabaseMysql
      */
     public function createDatabaseMysql(string $user, string $password, string $dbName): CreateDatabaseMysql
     {
@@ -123,10 +108,6 @@ class Flow
 
     /**
      * Drop mysql database
-     * @param string $user
-     * @param string $password
-     * @param string $dbName
-     * @return DropDatabaseMysql
      */
     public function dropDatabaseMysql(string $user, string $password, string $dbName): DropDatabaseMysql
     {
@@ -135,8 +116,6 @@ class Flow
 
     /**
      * Execute composer update
-     * @param string $dir
-     * @return UpdateComposer
      */
     public function composerUpdate(string $dir): UpdateComposer
     {
@@ -145,8 +124,6 @@ class Flow
 
     /**
      * Execute composer install
-     * @param string $dir
-     * @return InstallComposer
      */
     public function composerInstall(string $dir): InstallComposer
     {

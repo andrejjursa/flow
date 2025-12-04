@@ -31,15 +31,25 @@ class DeleteDirectory extends Action
 
     /**
      * Remove dir recursive
-     * @param string $dir
-     * @return bool
      */
     private function remove(string $dir): bool
     {
-        $files = array_diff(scandir($dir), ['.', '..']);
-        foreach ($files as $file) {
-            (is_dir("$dir/$file")) ? $this->remove("$dir/$file") : @unlink("$dir/$file");
+        $dirFiles = scandir($dir);
+        if ($dirFiles === false) {
+            return false;
         }
+
+        $files = array_diff($dirFiles, ['.', '..']);
+        foreach ($files as $file) {
+            $path = sprintf('%s/%s', $dir, $file);
+            if (is_dir($path)) {
+                $this->remove($path);
+                continue;
+            }
+
+            @unlink($path);
+        }
+
         return @rmdir($dir);
     }
 }

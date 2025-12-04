@@ -9,7 +9,7 @@ abstract class Action
     /** @var int */
     private $level = 1;
 
-    public function setLevel(int $level)
+    public function setLevel(int $level): void
     {
         $this->level = $level;
     }
@@ -26,8 +26,6 @@ abstract class Action
 
     /**
      * Run another sub-action
-     * @param Action   $action
-     * @param Renderer $renderer
      */
     protected function runAction(Action $action, Renderer $renderer): void
     {
@@ -37,8 +35,6 @@ abstract class Action
 
     /**
      * Execute action
-     * @param Renderer $renderer
-     * @return void
      */
     abstract public function run(Renderer $renderer): void;
 }

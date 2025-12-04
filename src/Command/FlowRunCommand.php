@@ -12,7 +12,7 @@ class FlowRunCommand extends Command
     /** @var Flow */
     private $flow;
 
-    public function __construct(Flow $flow, string $name = null, string $description = null)
+    public function __construct(Flow $flow, ?string $name = null, ?string $description = null)
     {
         parent::__construct($name);
         $this->flow = $flow;
@@ -21,8 +21,10 @@ class FlowRunCommand extends Command
         $this->setDescription($description ?: 'Execute all registered actions.');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output): void
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->flow->run($output);
+
+        return self::SUCCESS;
     }
 }

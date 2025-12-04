@@ -8,31 +8,36 @@ use Symfony\Component\Process\Process;
 
 class RunCommand extends Action
 {
+    const DEFAULT_TIMEOUT = 60;
+
     /** @var string */
     private $command;
 
     /** @var bool */
     private $printOutput;
 
-    /** @var string */
+    /** @var string|null */
     private $cwd;
 
-    /** @var array */
+    /** @var array<string, scalar|null>|null */
     private $env;
 
-    /** @var string */
+    /** @var string|null */
     private $input;
 
     /** @var int */
     private $timeout;
 
+    /**
+     * @param array<string, scalar|null>|null $env
+     */
     public function __construct(
         string $command,
         bool $printOutput,
-        string $cwd = null,
-        array $env = null,
-        string $input = null,
-        int $timeout = 60
+        ?string $cwd = null,
+        ?array $env = null,
+        ?string $input = null,
+        int $timeout = self::DEFAULT_TIMEOUT
     ) {
         $this->command = $command;
         $this->printOutput = $printOutput;
@@ -48,7 +53,7 @@ class RunCommand extends Action
         $process = Process::fromShellCommandline($this->command, $this->cwd, $this->env, $this->input, $this->timeout);
 
         $callback = $this->printOutput
-            ? function ($type, $buffer) use ($renderer) {
+            ? function ($type, string $buffer) use ($renderer): void {
                 static $data;
 
                 if ($buffer !== PHP_EOL) {
